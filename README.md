@@ -2,27 +2,31 @@
 
 ### V 0.1
   - new:
-	-	django rest framework initial configuration;
-	-	django rest framework jwt authentication;
-	- 	django Company model;
-	-	django User model filtering by company id;
-	- 	react login page;
-	- 	react homepage controls with sider menu;
-	- 	react logout command;
-	-	react add user form;
-	-	react list all user filtering by companing;
-	- 	react search user by name and cpf;
-	- 	react user detail page;
-	- 	react edit user info;
-	-	react delete user;
+  	- django rest framework
+		-	initial configuration;
+		-	jwt authentication;
+		- 	added Company model;
+		-	User model filtering by company id;
+	- react
+		- 	login page;
+		- 	logout;
+		- 	homepage controls with sider menu;
+		-	add user (feat: django rest framework);
+		-	list all user filtering by company (feat: django rest framework);
+		- 	search user by name and cpf (feat: django rest framework);
+		- 	user detail page (feat: django rest framework);
+		- 	edit user info (feat: django rest framework);
+		-	delete user (feat: django rest framework);
 		
 ### V 0.2
   - new:
-	- Added avatar image field on User model;
-	-	react & django rest framework change user password;
-	-	react & django rest framework change user avatar;
-	- 	react forbidden page;
-	- 	react invalid credential warning;
+  	- django rest framework
+		- Added avatar image field on User model;
+	- react
+		-	change user password (feat: django rest framework);
+		-	change user avatar (feat: django rest framework);
+		- 	react forbidden page;
+		- 	react invalid credential warning;
 	- 	react-native app
 		-	login page
 		-	basic home page
