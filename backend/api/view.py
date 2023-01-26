@@ -15,6 +15,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['cpf'] = user.cpf
         token['name'] = user.name
         token['company'] = user.company.id
+        token['avatar'] = f'{user.avatar}'
         token['is_staff'] = user.is_staff
         token['is_superuser'] = user.is_superuser
 
@@ -23,3 +24,4 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+

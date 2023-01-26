@@ -5,9 +5,9 @@ import Column from 'antd/es/table/Column';
 import { HomeOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import AuthContext from '../../context/AuthContext'
+import {API_ADDRESS} from '../../util/DevelopmentSettings'
 
-
-const userUrl = 'http://127.0.0.1:8000/api/users/';
+const userUrl = `${API_ADDRESS}/users/`;
 const configuration = (authTokens) => {
     const config = {
         headers:{

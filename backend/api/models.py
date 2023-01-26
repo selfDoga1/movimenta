@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+import os
 
 
 class Company(models.Model):
@@ -16,6 +19,9 @@ class Company(models.Model):
 
 
 class CustomUserManager(UserManager):
+    '''
+        Custom class to override admin's attributes
+    '''
     def _create_user(self, cpf, password, **extra_fields):
         if not cpf:
             raise ValueError('You have not provided a valid cpf')
@@ -37,12 +43,23 @@ class CustomUserManager(UserManager):
         return self._create_user(cpf, password, **extra_fields)
 
 
+class OverwriteStorage(FileSystemStorage):
+    '''
+        Custom class for the User model to change the default upload comportment
+    '''
+    def get_available_name(self, name, *args, **kwargs):
+        if self.exists(name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        return name
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     cpf = models.CharField(max_length=16, unique=True)
     name = models.CharField(max_length=128, blank=True, default='')
     phone = models.CharField(max_length=16, blank=True, default='')
     email = models.EmailField(unique=True, blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=True, null=True)
+    avatar = models.ImageField(upload_to='uploads/avatar', blank=True, storage=OverwriteStorage())
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

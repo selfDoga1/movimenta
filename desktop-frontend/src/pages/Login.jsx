@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, Row, Col, Typography } from 'antd';
+import { Button, Form, Input, Row, Col, Typography, Alert } from 'antd';
 import AuthContext from '../context/AuthContext'
 import MaskedInput from 'antd-mask-input'
 
@@ -25,15 +25,25 @@ function Login() {
         fontWeight: 'bold',
     };
 
+    const [invalid, setInvalid] = useState(false);
+
+    const InvalidCredentialsWarning = () => (
+        <Row justify='center' style={{ marginBottom: 12, color:'red' }}>
+            <Alert message="Invalid Credentials!" type="error" />
+        </Row>
+    );
+
     const navigate = useNavigate();
-    let {loginRequest, user} = useContext(AuthContext);     
+    let {loginRequest} = useContext(AuthContext);     
     
     const handleLoginRequest = async (form) => {
         try {
-            const response = await loginRequest(form);
-
-            if(response.status === 200){
-                navigate('/')
+            const responseStatus = await loginRequest(form);
+            
+            if (responseStatus === 200){
+                navigate('/');
+            } else {
+                setInvalid(true);
             }
             
         } catch (error) {
@@ -45,9 +55,11 @@ function Login() {
         <Row justify='center' align='middle' style={formRowStyle}>
             <Col style={formColStyle}>
             
-                <Row justify='center' style={{ marginBottom: '24px' }}>
+                <Row justify='center' style={{ marginBottom: 12 }}>
                     <Typography style={logoFontStyle}> Movimenta Project </Typography>
                 </Row>
+
+                {invalid && <InvalidCredentialsWarning />}                
 
                 <Row>
                     <Form name='login' layout='vertical' autoComplete='off' onFinish={handleLoginRequest}>

@@ -1,8 +1,9 @@
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from .serializers import UserSerializer, CompanySerializer
 from .models import User, Company
-from rest_framework.response import Response
 
 
 class IsSuperUser(IsAdminUser):
@@ -12,12 +13,10 @@ class IsSuperUser(IsAdminUser):
 
 class UserViewSet(viewsets.ModelViewSet):
     search_fields = ['cpf', 'name']
-    filter_backends = (filters.SearchFilter, )
+    filter_backends = (filters.SearchFilter,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated, IsAdminUser)
-
-    # TODO: Implements Backend pagination
 
     def list(self, request, *args, **kwargs):
         staff = request.user
@@ -31,13 +30,38 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-
     def create(self, request, *args, **kwargs):
         staff = request.user
         data = request.data
         new_user = User.objects.create_user(data['cpf'], data['password'], name=data['name'], phone=data['phone'], email=data['email'], company=staff.company)
         return Response(self.get_serializer(new_user).data)
 
+    @action(detail=False, methods=['POST'], name='Change Avatar')
+    def change_avatar(self, request, *args, **kwargs):
+        '''
+            Function to change User Avatar
+        '''
+        image = request.FILES.get('image')
+        id = request.POST.get('id')
+        try:
+            instance = User.objects.get(id=id)
+        except User.DoesNotExist:
+            return Response({'error': 'Model does not exist'}, status=404)
+        instance.avatar = image
+        instance.save()
+        return Response({'message': 'User avatar changed!'})
+
+    @action(detail=False, methods=['POST'], name='Change Password')
+    def change_password(self, request, *args, **kwargs):
+        id = request.POST.get('id')
+        print(request.POST.get('password'))
+        password = request.POST.get('password')
+        try:
+            instance = User.objects.get(id=id)
+        except User.DoesNotExist:
+            return Response({'error': 'Model does not exist'}, status=404)
+        instance.set_password(password)
+        return Response({'message': 'User password changed!'})
 
 class CompanyViewSet(viewsets.ModelViewSet):
     serializer_class = CompanySerializer

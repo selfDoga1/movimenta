@@ -9,6 +9,7 @@ router = routers.DefaultRouter()
 router.register('users', UserViewSet)
 router.register('companies', CompanyViewSet)
 
+
 urlpatterns = [
     path('', include(router.urls)),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
