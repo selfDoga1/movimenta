@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Form, Input, Button } from 'antd';
+import { Modal } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 
 const { confirm } = Modal;
@@ -9,7 +9,7 @@ const MODAL_CONTENT = {
     'edit':'Confirm the edit?',
 };
 
-const MyModal = (title, content, callback) => (
+const ConfirmModal = (title, content, callback) => (
     confirm({
         title: title,
         content:content,
@@ -18,24 +18,20 @@ const MyModal = (title, content, callback) => (
     })
 );
 
-const ChangePasswordModal = (props) => (
-    <Modal 
-        title='Change Password' 
+const GenericModal = (props) => (
+    <Modal
+        title={props.title}
         open={props.isModalOpen}
         onCancel={props.toggleModal}
-        onOk={props.handleChangePassword}
-        footer={[
-            <Button danger onClick={props.toggleModal}> Cancel </Button>,
-            <Button type='primary' form="changePasswordForm" key="submit" htmlType="submit"> Change </Button>
-        ]}
+        width={props.width}
+        footer={props.footer}
+        onOk={props.onOk}
     >
-        <Form id='changePasswordForm' onFinish={props.handleChangePassword}>
-            <Form.Item label='Password:' name='password' rules={[{ required: true, message: 'Name is required!' }]}>
-                <Input.Password />
-            </Form.Item>
-        </Form>
+        <div style={props.style}>
+            {props.children}
+        </div>
     </Modal>
 )
 
 
-export  { MyModal, MODAL_CONTENT, ChangePasswordModal };
+export  { ConfirmModal, MODAL_CONTENT, GenericModal };

@@ -9,8 +9,6 @@ const { Navigator, Screen } = createBottomTabNavigator();
 const HomeIcon = (props) => (<Icon {...props} name='home-outline'/>);
 const SettingsIcon = (props) => (<Icon {...props} name='settings-outline'/>);
 
-
-
 const BottomTabBar = ({navigation, state}) => (
 	<BottomNavigation
 		selectedIndex={state.index}

@@ -1,54 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Tabs, Breadcrumb, Form, Input, Button, Row, Col, Image, Upload } from 'antd'
-import { HomeOutlined, UserOutlined, InfoCircleOutlined, UploadOutlined } from '@ant-design/icons';
-import axios from 'axios';
-import MaskedInput from 'antd-mask-input'
-import AuthContext from '../../context/AuthContext'
-import { API_ADDRESS } from '../../util/DevelopmentSettings'
-import { MyModal as Modal, MODAL_CONTENT, ChangePasswordModal } from '../others/Modal'
-import { Notification, NOTIFICATION_DESCRIPTION } from '../others/Notification'
-
-
-const MyBreadcrumb = () => {
-    return(
-        <Breadcrumb>
-            <Breadcrumb.Item>
-                <HomeOutlined />
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>
-                <UserOutlined />
-                <span>User</span>
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>
-                <InfoCircleOutlined />
-                <span>Info</span>
-            </Breadcrumb.Item>
-      </Breadcrumb>
-  );
-};
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Tabs } from 'antd';
+import { API_ADDRESS } from '../../util/DevelopmentSettings';
+import { Notification, NOTIFICATION_DESCRIPTION } from '../others/Notification';
+import useAxios from '../../util/useAxios'
+import { RoutineInfo } from './Info'
+import {UserInfoForm} from '../forms/Forms'
+import AppBreadcrumb from '../../util/AppBreadcrumb'
   
 function UserInfo(props) {
 
+    const api = useAxios();
     const navigate = useNavigate();
-    const [userInfo, setUserInfo] = useState({});
     const params = useParams();
-    
-    let {authTokens} = useContext(AuthContext);     
+    const [userInfo, setUserInfo] = useState({});
     const userUrl = `${API_ADDRESS}/users/${params.userId}/`;
-    const headers = {
-        headers:{
-            'Authorization': 'Bearer ' + authTokens.access,
-        }
-    };
 
-    const [isChangePasswordModalOpen, setChangePasswordIsModalOpen] = useState(false);
-    const toggleIsChangePasswordModalOpen = () => (setChangePasswordIsModalOpen(!isChangePasswordModalOpen));
-
-    // get user info on load
-    const handleGetUserInfoRequest = async () => {
+    //  - - - get user information - - - \\
+    const handleGetUserInfo = async () => {
         try {
-            const {status, data} = await axios.get(userUrl, headers);
+            const {status, data} = await api.get(userUrl);
 
             if(status === 200){
                 setUserInfo(data);
@@ -61,14 +32,27 @@ function UserInfo(props) {
 
     };
 
-    // delete user
-    const showConfirmDeleteUserModal = () => {
-        Modal('Delete', MODAL_CONTENT.delete, () => (handleDeleteUserRequest()));
+    // TODO: function repeated on AddUserForm.jsx
+    //  - - - add user - - - \\
+    const handleAddUser = async (form) => {
+        try {
+            const url = `${API_ADDRESS}/users/`;
+            const { status, data } = await api.post(url, form);
+
+            if(status === 200){
+                navigate(`/users/${data.id}`);
+            };
+
+        } catch (error) {
+            alert('AddUserForm error!');
+            console.log(error);
+        }
     };
 
-    const handleDeleteUserRequest = async () => {
+    //  - - - delete user - - - \\
+    const handleDeleteUser = async () => {
         try {
-            const {status} = await axios.delete(userUrl, headers);
+            const {status} = await api.delete(userUrl);
 
             if (status === 204){
                 navigate('/');
@@ -80,14 +64,10 @@ function UserInfo(props) {
         }
     };
 
-    // edit user
-    const showConfirmEditUserModal = (form) => {
-        Modal('Edit', MODAL_CONTENT.edit, () => (handleEditUserRequest(form)));
-    };
-    
-    const handleEditUserRequest = async (form) => {
+    //  - - - edit user - - - \\
+    const handleEditUser = async form => {
         try {
-            const {status} = await axios.put(userUrl, form, headers);
+            const {status} = await api.put(userUrl, form);
             
             if(status === 200){
                 Notification('Success', NOTIFICATION_DESCRIPTION.successEditUser);          
@@ -100,16 +80,16 @@ function UserInfo(props) {
     };
 
     const handleAvatarUpload = async options => {
-        const changeAvatarUrl = `${API_ADDRESS}/users/change_avatar/`
+        const url = `${API_ADDRESS}/users/change_avatar/`
         const { file } = options;
         const blob = file.slice(0, file.size);
-        const newFile = new File([blob], `${userInfo.name}_${userInfo.cpf}_avatar.${file.name.split('.').pop()}`, { type: `${file.type}` });
+        const newFile = new File([blob], `${userInfo.name}_${userInfo.cpf}_avatar.${file.name.split('.').pop()}`, {type: `${file.type}`});
         const form = new FormData();
         form.append('id', userInfo.id);
         form.append('image', newFile);
 
         try {
-            const { status } = await axios.post(changeAvatarUrl, form, headers);
+            const { status } = await api.post(url, form);
 
             if(status === 200){
                 options.file.status = 'done';
@@ -122,17 +102,20 @@ function UserInfo(props) {
         }
     };  
 
+    const [isChangePasswordModalOpen, setChangePasswordIsModalOpen] = useState(false);
+    const toggleIsChangePasswordModalOpen = () => (setChangePasswordIsModalOpen(!isChangePasswordModalOpen));
+
     const handleChangePassword = async data => {
 
         // TODO: not use new FormData().
 
-        const changePasswordUrl = `${API_ADDRESS}/users/change_password/`;
+        const url = `${API_ADDRESS}/users/change_password/`;
         const form = new FormData();
         form.append('id', userInfo.id);
         form.append('password', data.password)
 
         try {
-            const { status } = await axios.post(changePasswordUrl, form, headers);
+            const { status } = await api.post(url, form);
             if( status === 200 ){
                 setChangePasswordIsModalOpen(false);
                 Notification('Success', NOTIFICATION_DESCRIPTION.successChangePassword);          
@@ -143,81 +126,34 @@ function UserInfo(props) {
         }
     };
 
-    const UserInfoForm = (props) => {
-        return (
-            <div>
-                <Row justify='center'>
-                    
-                    <Col span={6}>
-                        <Row>
-                            <Image.PreviewGroup>
-                                <Image width={200} src={`${userInfo.avatar}`} />
-                            </Image.PreviewGroup>     
-                        </Row>
-                        <Row>
-                            <Upload 
-                                onChange={handleAvatarUpload}
-                                customRequest={handleAvatarUpload}
-                                accept='image/png, image/jpeg'
-                            >
-                                <Button icon={<UploadOutlined />} style={{marginLeft:25, marginTop:20}} >Click to Upload</Button>
-                            </Upload>               
-                        </Row>
-                    </Col>
-                
-                    <Col span={16}>
-
-                        <Form layout='vertical' autoComplete='off' style={{padding:'auto'}} initialValues={props.userInfo} onFinish={showConfirmEditUserModal}>
-                            
-                            <Form.Item label='Name:' name='name' rules={[{ required: true, message: 'Name is required!' }]}>
-                                <Input />
-                            </Form.Item>
-    
-                            <Form.Item label='Cpf:' name='cpf' rules={[{ required: true, message: 'Cpf is required!' }]}>
-                                <MaskedInput mask={'000.000.000-00'} />
-                            </Form.Item>
-    
-                            <Form.Item label='Phone:' name='phone'>
-                                <MaskedInput mask={'(00) 0 0000-0000'} />
-                            </Form.Item>
-    
-                            <Form.Item label='E-mail:' name='email'>
-                                <Input placeholder='user@email.com' />
-                            </Form.Item>
-    
-                            <Row justify='end'>
-                                <Button danger type='primary' style={{ marginRight:10 }} onClick={() => (setChangePasswordIsModalOpen(true))}>Change Password</Button>
-                                <Button danger type='primary' style={{ marginRight:10 }} onClick={showConfirmDeleteUserModal}>Delete</Button>
-                                <Button type='primary' style={{background:'yellow', color:'black'}} htmlType='submit'>Edit</Button>
-                            </Row>
-    
-                        </Form>
-                    </Col>
-                </Row>
-                <ChangePasswordModal 
-                    isModalOpen={isChangePasswordModalOpen} 
-                    toggleModal={toggleIsChangePasswordModalOpen}
-                    handleChangePassword={handleChangePassword}
-                />
-            </div>
-        )
-    }
-
     const tabItems = [
         {
           'key': '1',
           'label': 'User Info',
-          'children': <UserInfoForm userInfo={userInfo}/>
+          'children': <UserInfoForm 
+                        userInfo={userInfo} 
+                        handleAvatarUpload={handleAvatarUpload}
+                        handleChangePassword={handleChangePassword}
+                        handleEditUser={form => handleEditUser(form)}
+                        handleDeleteUser={() => handleDeleteUser()}
+                        isChangePasswordModalOpen={isChangePasswordModalOpen} 
+                        toggleIsChangePasswordModalOpen={() => toggleIsChangePasswordModalOpen()}
+                    />
+        },
+        {
+            'key': '2',
+            'label': 'Routines',
+            'children': <RoutineInfo userInfo={userInfo}/>
         }
     ]
 
     useEffect(() => {
-        handleGetUserInfoRequest();
-    }, []);
+        handleGetUserInfo();
+    }, [userUrl]);
 
     return (
         <div>
-            <MyBreadcrumb />
+            <AppBreadcrumb items={['User', 'Info']}/>
             <Tabs defaultActiveKey='1' items={tabItems}/>
         </div>
     )

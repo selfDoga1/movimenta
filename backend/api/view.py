@@ -8,6 +8,7 @@ from .models import User
 
 # API Token Customization
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)

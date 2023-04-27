@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
-import AuthContext  from '../context/AuthContext'
+import AuthContext from '../context/AuthContext'
 import { Login, Forbidden } from '../pages/Pages'
 
 function PrivateRouter(props) {
@@ -17,7 +17,7 @@ function PrivateRouter(props) {
 
     useEffect(() => {
         if(!user){
-            navigate('/login')
+            navigate('/login');
         }
     }, []);
     
@@ -32,21 +32,20 @@ function PrivateLoginRouter() {
     let { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    
-
     useEffect(() => {
-        if(user.is_staff || user.is_superUser){
-            navigate('/')
+        if(user){
+            if( user.is_staff || user.is_superUser){
+                navigate('/');
+            };
         }
     }, [user]);
 
     return (
         <>
-            {( !user.is_staff || !user.is_superUser || !user ) && <Login />} 
+            {( !user || !user.is_staff || !user.is_superUser ) && <Login />} 
         </>
     )
 }
 
- 
  export default PrivateRouter;
  export { PrivateLoginRouter };

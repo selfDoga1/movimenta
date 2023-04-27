@@ -1,7 +1,9 @@
 from django.contrib import admin
-from .models import User, Company
+from .models import User, Company, Workout, Routine, WorkoutRoutine
 
+models = [User, Company, Workout, Routine, WorkoutRoutine]
 
-admin.site.register(User)
-admin.site.register(Company)
+for model in models:
+    admin.site.register(model)
+
 

@@ -6,18 +6,6 @@ from django.conf import settings
 import os
 
 
-class Company(models.Model):
-    cnpj = models.CharField(max_length=24)
-    name = models.CharField(max_length=128)
-
-    def __str__(self):
-        return f'{self.name} / {self.cnpj}'
-
-    class Meta:
-        verbose_name = 'Company'
-        verbose_name_plural = 'Companies'
-
-
 class CustomUserManager(UserManager):
     '''
         Custom class to override admin's attributes
@@ -53,6 +41,17 @@ class OverwriteStorage(FileSystemStorage):
         return name
 
 
+class Company(models.Model):
+    cnpj = models.CharField(max_length=24)
+    name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return f'{self.name} / {self.cnpj}'
+
+    class Meta:
+        verbose_name = 'Company'
+        verbose_name_plural = 'Companies'
+
 class User(AbstractBaseUser, PermissionsMixin):
     cpf = models.CharField(max_length=16, unique=True)
     name = models.CharField(max_length=128, blank=True, default='')
@@ -84,3 +83,33 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f'{self.name} / {self.cpf}'
 
+
+class Workout(models.Model):
+    name = models.CharField(max_length=64, blank=True, default='', unique=True)
+    description = models.TextField(max_length=128, blank=True, default='')
+
+    def __str__(self):
+        return self.name
+
+
+class Routine(models.Model):
+    name = models.CharField(max_length=64, blank=True, default='', unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
+    date_created = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f' {self.user.get_full_name()} - {self.name}'
+
+
+class WorkoutRoutine(models.Model):
+    workout = models.ForeignKey(Workout, on_delete=models.CASCADE, blank=False, null=False)
+    routine = models.ForeignKey(Routine, on_delete=models.CASCADE, blank=False, null=False)
+    series = models.IntegerField()
+    repetitions = models.IntegerField()
+
+    class Meta:
+        verbose_name = 'Workout Routine'
+        verbose_name_plural = 'Workout Routines'
+
+    def __str__(self):
+        return f'{self.routine.user.get_full_name()} - {self.workout} - {self.series}x{self.repetitions}'

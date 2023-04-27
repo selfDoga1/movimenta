@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import PrivateRouter, { PrivateLoginRouter } from '../util/PrivateRouter'
 import Layout from '../components/Layout'
 import { AddUserForm } from '../components/forms/Forms'
-import { UserListTable } from '../components/tables/Tables'
+import { UserTable } from '../components/tables/Tables'
 import { UserInfo } from '../components/info/Info'
 
 
@@ -17,7 +17,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/users/search',
-        element: <UserListTable />,
+        element: <UserTable />,
       },
       {
         path: '/users/:userId',

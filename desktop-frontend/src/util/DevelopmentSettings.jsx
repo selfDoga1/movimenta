@@ -1,5 +1,6 @@
-// const BACKEND_ADDRESS = 'http://10.0.0.147:8000/'
-const BACKEND_ADDRESS = 'http://127.0.0.1:8000/'
+// const BACKEND_ADDRESS = 'http://127.0.0.1:8000/'
+const BACKEND_ADDRESS = 'http://10.0.0.147:8000/'
+
 const API_ADDRESS = BACKEND_ADDRESS + 'api'
 
 export { BACKEND_ADDRESS, API_ADDRESS }

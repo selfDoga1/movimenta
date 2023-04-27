@@ -3,9 +3,9 @@ import AuthContext from '../context/AuthContext'
 import { SignIn } from '../pages/Pages'
 import {InsideAppNavigator} from '../navigation/Navigation'
 
-
 const PrivateSignIn = ({navigation}) => {
-    let {user} = useContext(AuthContext);
+    let { user } = useContext(AuthContext);
+    
     if (user){
         return <PrivateNavigator component={<InsideAppNavigator rootNavigation={navigation} />}/>
     } else {
@@ -14,7 +14,8 @@ const PrivateSignIn = ({navigation}) => {
 };
 
 const PrivateNavigator = (props) => {
-    let {user} = useContext(AuthContext);
+    let { user } = useContext(AuthContext);
+    
     if (!user){
         return <PrivateSignIn />
     } else {

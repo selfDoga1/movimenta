@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
-import {API_ADDRESS} from '../util/DevelopmentSettings'
+import { API_ADDRESS } from '../util/DevelopmentSettings'
 
 const AuthContext = createContext();
 
@@ -19,9 +19,7 @@ const AuthProvider = ({ children }) => {
 
     let loginRequest = async (form) => {
         try {
-            const getTokenUrl = `${API_ADDRESS}/token/`;
-            const body = {'cpf': form.cpf, 'password':form.password} // irrelevant
-            let { status, data } = await axios.post(getTokenUrl, body);
+            let { status, data } = await axios.post(`${ API_ADDRESS }/token/`, { 'cpf': form.cpf, 'password':form.password });
 
             if (status === 200){
                 localStorage.setItem('authTokens', JSON.stringify(data));
@@ -45,51 +43,21 @@ const AuthProvider = ({ children }) => {
         return true;
     }
 
-    let refreshTokenRequest = async () => {
-        try {
-            const refreshTokenUrl = `${API_ADDRESS}/token/refresh/`;
-            const body = {'refresh': authTokens?.refresh}
-            const { status, data } = await axios.post(refreshTokenUrl, body);
-
-            if (status === 200){
-                localStorage.setItem('authTokens', JSON.stringify(data));
-                setAuthTokens(data);
-                setUser(jwt_decode(data.access));  
-
-            } else {
-                logoutRequest();
-            }
-            
-        } catch (error) {
-            logoutRequest();
-        }
-        toggleLoading();
-    }
-
     let contextData = {
         user:user,
         authTokens:authTokens,
+        setUser:setUser,
+        setAuthTokens:setAuthTokens,
         loginRequest:loginRequest,
         logoutRequest:logoutRequest
     }
 
     useEffect(() => {
 
-        if(loading){
-            refreshTokenRequest();
+        if(authTokens){
+            setUser(jwt_decode(authTokens.access));
         }
-
-        // TODO: implement axios interceptors
-
-        let fourMinutes = 1000 * 60 * 4;
-
-        let interval = setInterval(() => {
-            if(authTokens){
-                refreshTokenRequest();
-            }
-        }, fourMinutes)
-
-        return () => clearInterval(interval);
+        setLoading(false);
 
     }, [loading, authTokens])
 

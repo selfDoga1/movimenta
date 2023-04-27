@@ -45,6 +45,14 @@ export default function Settings(props) {
             <Layout style={{
                 paddingBottom:10,
             }}>
+
+                <Button 
+                    appearance='filled'
+                    style={{marginBottom:6}}
+                >
+                    Refresh
+                </Button>
+
                 <Button 
                     status='danger'
                     onPress={handleLogoutRequest}

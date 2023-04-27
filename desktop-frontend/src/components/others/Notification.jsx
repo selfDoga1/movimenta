@@ -3,7 +3,9 @@ import { CheckCircleTwoTone } from '@ant-design/icons'
 
 const NOTIFICATION_DESCRIPTION = {
     successEditUser: 'User successfully edited!',
-    successChangePassword:'User Password successfully changed!' 
+    successChangePassword:'User Password successfully changed!',
+    successAddRoutine:'Routine successfully added!',
+    successAddWorkout:'Workout successfully added!'
 }
 
 const Notification = (message, description) => {

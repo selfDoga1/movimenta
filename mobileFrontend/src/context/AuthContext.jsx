@@ -1,15 +1,14 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwtDecode from 'jwt-decode';
 import {API_ADDRESS} from '../util/DevelopmentSettings'
 
-
-axios.defaults.timeout = 2000;
+// axios.defaults.timeout = 2000;
 const AuthContext = createContext();
 
 const AuthProvider = ({children}) => {
-    
+        
     const loadTokensFromLocal = async () => {
         try {
             const authTokens = await AsyncStorage.getItem('authTokens');
@@ -24,17 +23,17 @@ const AuthProvider = ({children}) => {
         }
     };
     
-    let [authTokens, setAuthTokens] = useState(loadTokensFromLocal());
-    let [user, setUser] = useState(null);
+    const [authTokens, setAuthTokens] = useState(loadTokensFromLocal());
+    const [user, setUser] = useState(null);
 
     const api = axios.create({
         baseURL: API_ADDRESS
     });
 
-
     const loginRequest = async (form) => {
         try {
-            const {status, data} = await api.post('/token/', form)
+
+            const {status, data} = await axios.post(`${ API_ADDRESS }/token/`, form)
 
             if(status === 200){
                 setAuthTokens(data);
@@ -55,9 +54,11 @@ const AuthProvider = ({children}) => {
         return true;
     }
 
+
     let contextData = {
         loginRequest:loginRequest,
         logoutRequest:logoutRequest,
+        authTokens:authTokens,
         user:user,
     };
 
